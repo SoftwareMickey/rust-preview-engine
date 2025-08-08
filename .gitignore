@@ -1,0 +1,5 @@
+rust-server/.git
+preview-server/.git
+
+rust-server/target
+.env

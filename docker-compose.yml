@@ -1,0 +1,41 @@
+services:
+  react-preview:
+    build:
+      context: ./preview-server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "10000-10100:10000-10100" # * expose range used by getAvailablePort(), For Prod use nginx reverse proxy
+    env_file:
+      - .env
+    volumes:
+      - sclera_data:/sclera_builds
+    environment:
+      - PROJECT_ROOT=/sclera_builds
+      - REDIS_URL=${REDIS_URL}
+      - NPM_PATH=${NPM_PATH}
+      - NPX_PATH=${NPX_PATH}
+    restart: always
+    container_name: preview-server
+
+  app:
+    build:
+      context: ./rust-server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart : always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PROJECT_ROOT=/sclera_builds
+      - REACT_GEN_URL=${REACT_GEN_URL}
+      - REDIS_URL=${REDIS_URL}
+      - NPM_PATH=${NPM_PATH}
+      - NPX_PATH=${NPX_PATH}
+    volumes:
+      - sclera_data:/sclera_builds
+    container_name: "rust-preview"
+volumes : 
+  sclera_data : {}
