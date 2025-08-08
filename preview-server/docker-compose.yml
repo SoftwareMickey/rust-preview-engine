@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  host-node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4502:4502"
+    volumes:
+      - /var/www/sclera-sites:/var/www/sclera-sites
+    container_name: 'host-node'
+
+  host-nginx:
+    image: nginx:alpine
+    depends_on:
+      - host-node
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/www/sclera-sites:/var/www/sclera-sites
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    container_name: 'host-nginx'
