@@ -35,6 +35,6 @@ pub async fn handle_socket(socket: WebSocket) {
 
     socket_receiver_loop_handler(receiver, tx, sender).await;
 
-    println!("❌ WebSocket disconnected");
+    // println!("❌ WebSocket disconnected");
 }
 

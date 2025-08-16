@@ -11,10 +11,13 @@ services:
     volumes:
       - sclera_data:/sclera_builds
     environment:
+      - PROXY_URL=http://proxy:8080
       - PROJECT_ROOT=/sclera_builds
       - REDIS_URL=${REDIS_URL}
       - NPM_PATH=${NPM_PATH}
       - NPX_PATH=${NPX_PATH}
+    networks:
+      - sclera-net
     restart: always
     container_name: preview-server
 
@@ -39,3 +42,7 @@ services:
     container_name: "rust-preview"
 volumes : 
   sclera_data : {}
+networks:
+  sclera-net:
+    external: true
+      
