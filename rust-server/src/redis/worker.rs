@@ -20,7 +20,7 @@ pub async fn start_worker_handler(
     let mut pubsub_stream = subscriber.on_message();
 
     while let Some(_msg) = pubsub_stream.next().await {
-        println!("🔔 Job notification received.");
+        println!("🔔 Job notification received...");
 
         loop {
             match dequeue_handler("sclera:jobs").await {
@@ -29,13 +29,20 @@ pub async fn start_worker_handler(
 
                     if job.job_type == "react-code-build" {
                         let latest_data = rx.borrow().clone();
-                        receive_preview(Json(latest_data.clone())).await.unwrap();
+                        let build_status = receive_preview(Json(latest_data.clone())).await;
 
-                        if let Some(site_name) = latest_data.site_name {
-                            println!("BUILD DONE FOR: {:?}", site_name);
-                            match redis_publisher(&site_name).await {
-                                Ok(_) => println!("✅ Publish success"),
-                                Err(e) => eprintln!("❌ Publish failed: {:?}", e),
+                        match build_status {
+                            Ok(_) => {
+                                if let Some(site_name) = latest_data.site_name {
+                                    println!("BUILD DONE FOR: {:?}", site_name);
+                                    match redis_publisher(&site_name).await {
+                                        Ok(_) => println!("✅ Publish success"),
+                                        Err(e) => eprintln!("❌ Publish failed: {:?}", e),
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Error during building {:?}", e)
                             }
                         }
                     } else {

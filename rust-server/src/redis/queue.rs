@@ -11,32 +11,32 @@ pub async fn queue_handler(queue_name: &str, job: &Job) -> RedisResult<()> {
 
     let mut conn = get_redis_connection().await?;
     
-    conn.rpush::<_, _, ()>(queue_name, &job_json).await?;
+    let push_result = conn.rpush::<_, _, ()>(queue_name, &job_json).await;
     conn.publish::<_, _, ()>("job_notify", "new_job").await?;
-    // println!("🔢 Push result: {}", push_result);
+    println!("🔢 Push result: {:?}", push_result);
 
-    // let keys: Vec<String> = conn.keys("*").await?;
-    // println!("🔑 Keys in Redis: {:?}", keys);
+    let keys: Vec<String> = conn.keys("*").await?;
+    println!("🔑 Keys in Redis: {:?}", keys);
 
 
-    // let contents: Vec<String> = conn.lrange(queue_name, 0, -1).await.unwrap_or_default();
-    // println!("🧾 Queue state after push: {:?}", contents);
+    let contents: Vec<String> = conn.lrange(queue_name, 0, -1).await.unwrap_or_default();
+    println!("🧾 Queue state after push: {:?}", contents);
 
     // Confirm
-    // if contents.contains(&job_json) {
-    //     println!("✅ JOB VERIFIED IN QUEUE");
-    // } else {
-    //     println!("❌ JOB NOT FOUND IN QUEUE");
-    // }
+    if contents.contains(&job_json) {
+        println!("✅ JOB VERIFIED IN QUEUE");
+    } else {
+        println!("❌ JOB NOT FOUND IN QUEUE");
+    }
 
 
-    // match push_result {
-    //     Ok(_) => println!("✅ JOB PUSHED TO QUEUE..."),
-    //     Err(e) => println!("❌ FAILED TO PUSH TO QUEUE...{:?}", e),
-    // }
+    match push_result {
+        Ok(_) => println!("✅ JOB PUSHED TO QUEUE..."),
+        Err(e) => println!("❌ FAILED TO PUSH TO QUEUE...{:?}", e),
+    }
 
-    // let len = conn.llen(queue_name).await?;
-    // println!("📦 Job pushed. Queue now has {:?} jobs", len);
+    let len: i32 = conn.llen(queue_name).await?;
+    println!("📦 Job pushed. Queue now has {:?} jobs", len);
 
 
     Ok(())

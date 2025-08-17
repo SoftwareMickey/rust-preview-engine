@@ -9,10 +9,14 @@ use axum::http::Method;
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 
+use crate::redis::worker::start_worker_handler;
 use crate::sockets::sockets::ws_handler;
+use crate::types::PagesData;
 use crate::{
     preview::handlers::receive_preview
 };
+
+use tokio::sync::watch;
 
 mod handlers;
 mod models;
@@ -34,6 +38,17 @@ async fn main() {
 
     println!("✅ after redis_connection_handler");
 
+     let initial_data = PagesData { 
+        pages : vec![],
+        user_id: Option::Some("Hello".to_string()), 
+        user_name: Option::Some("Hello".to_string()), 
+        site_name: Option::Some("Hello".to_string()), 
+        project_id: Option::Some("Hello".to_string()), 
+        project_name: Option::Some("Hello".to_string())
+    };
+
+    let (_tx, rx) = watch::channel::<PagesData>(initial_data);
+
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(vec![Method::POST, Method::GET])
@@ -49,8 +64,15 @@ async fn main() {
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     println!("Server running on http://{}", addr);
 
+    // //* START REDIS WORKER HERE
+    // tokio::spawn(async move {
+    //     start_worker_handler("sclera:jobs", rx).await;
+    //     println!("WORKER STARTED...");
+    // });
+
     axum_server::bind(addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
+
 }
