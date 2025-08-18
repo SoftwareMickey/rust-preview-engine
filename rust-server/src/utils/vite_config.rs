@@ -18,7 +18,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({{
     base: '{}',
     server : {{
-        port : 5174,
+        port: parseInt(process.env.PORT) || 5173,   // 👈 use dynamic port
+        host: "0.0.0.0",  
         allowedHosts: [
             "preview-server",      // container name
             "localhost",

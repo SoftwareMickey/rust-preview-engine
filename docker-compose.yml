@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-      - "10000-10100:10000-10100" # * expose range used by getAvailablePort(), For Prod use nginx reverse proxy
+      - "10000-10100:10000-10100"
     env_file:
       - .env
     volumes:
