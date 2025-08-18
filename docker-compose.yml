@@ -11,7 +11,7 @@ services:
     volumes:
       - sclera_data:/sclera_builds
     environment:
-      - PROXY_URL=http://proxy:8080
+      - PROXY_URL=${PROXY_URL}
       - PROJECT_ROOT=/sclera_builds
       - REDIS_URL=${REDIS_URL}
       - NPM_PATH=${NPM_PATH}
