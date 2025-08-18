@@ -3,6 +3,7 @@ const axios = require('axios')
 async function HttpReverseProxySite({ port, siteID }) {
 
     const BASE_URL = process.env.PROXY_URL;
+    console.log(`PROXY URL : ${BASE_URL}`)
 
     try{
         const response = await axios.post(`${BASE_URL}/register`, {
